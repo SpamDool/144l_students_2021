@@ -1,0 +1,68 @@
+---
+title: '10_13_2021_abundance_demo'
+author: "Sam Daley"
+date: "10/13/2021"
+output: github_document
+---
+# Goal
+
+This document shows how **individual bottle** bacterial abundance data from 2018 remineralization experiments were processed, QC'd and analyzed. it also provides an intro to data processing and analysis with Rstudio and R Markdown.
+
+
+#Intro to R Markdown
+
+Create a new code chunk: Ctrl + alt + i
+
+Run current chunk: Ctrl + alt + c
+
+Load packages that we'll need to analyze our data.
+```{r Load packages, warning=FALSE}
+library(tidyverse)
+library(readxl)
+library(lubridate)
+```
+
+We can toggle on/off warnings in chunks if we don't want them in our final markdown file.
+
+# Import Data
+
+```{r}
+excel_sheets("C:/Users/samro/Desktop/GitHub/144l_students_2021/Input_Data/week3/144L_2018_BactAbund.xlsx")
+
+metadata <- read_excel("C:/Users/samro/Desktop/GitHub/144l_students_2021/Input_Data/week3/144L_2018_BactAbund.xlsx", sheet = "Metadata")
+
+glimpse(metadata)
+#unique(metadata$Bottle)
+#unique(metadata$Treatment)
+
+data <- read_excel("C:/Users/samro/Desktop/GitHub/144l_students_2021/Input_Data/week3/144L_2018_BactAbund.xlsx", sheet = "Data")
+glimpse(data)
+
+joined <- left_join(metadata, data) #attach data to metadata
+#joins right dataset to the left one by using variables that are the same across the two dataframes
+
+```
+# Prepare data
+
+We will convert the Date and Time column values from characters to dates, add columns with time elapsed for each treatment, and convert to cells/L because it will help us match up with the TOC data later. We will then subset the data for variables of interest and drop NA values.
+
+To do this, we are going to be using **piping**. Piping is an operation that allows us to write more efficient code. The way that we'll use it here is to manipulate our data sequesntially. The pipe operator, %>%, which basically says like "first do one thing to the data. THEN, do this other thing." (with the %>% operator taking the place of the word THEN in this scenario). Every call that we invoke with an additional pipe is going to take place on the variable (dataframe) that we specify at the beginning.
+
+
+```{r}
+cells <- joined %>%
+  mutate(Datetime = ymd_hm(Datetime), #splits apart Datetime as specified
+  cells_L = Cells_ml * 1000) %>%
+  group_by(Treatment, Bottle) %>%
+#group our data set so that we can calculate the time elapsed properly
+  mutate(interv = interval(first(Datetime), Datetime), 
+         s = as.numeric(interv), 
+         hours = s/3600,
+         days = hours/24) %>%
+  ungroup() %>%
+  select(Experiment:DNA_Sample, cells_L, hours, days) %>%
+  drop_na(cells_L)
+glimpse(cells)
+
+```
+
