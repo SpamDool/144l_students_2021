@@ -1,0 +1,44 @@
+---
+title: "2021_abundance_data"
+author: "Sam Daley"
+date: "10/19/2021"
+output: github_document
+---
+# Goal
+
+```{r Load Packages, warning=FALSE}
+library(tidyverse)
+library(readxl)
+library(lubridate)
+```
+
+# Import Data
+
+```{r}
+excel_sheets("C:/Users/samro/Desktop/GitHub/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx")
+
+metadata <- read_excel("C:/Users/samro/Desktop/GitHub/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx", sheet = "Metadata")
+
+data <- read_excel("C:/Users/samro/Desktop/GitHub/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx", sheet = "Data")
+
+joined <- left_join(metadata, data)
+
+glimpse(joined)
+```
+
+# Prepare Data
+
+```{r}
+cells <- joined %>%
+  mutate(Datetime = ymd_hm(Datetime)) %>%
+  group_by(Treatment, Bottle) %>%
+  mutate(interv = interval(first(Datetime), Datetime),
+         s = as.numeric(interv),
+         hours = s/3600,
+         days = hours/24) %>%
+  ungroup() %>%
+  select(Experiment:DNA_Sample, hours, days) %>%
+  drop_na()
+
+```
+
