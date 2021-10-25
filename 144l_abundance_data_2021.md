@@ -20,9 +20,30 @@ Load packages that we’ll need to analyze our data.
 
 ``` r
 library(tidyverse)
+```
+
+    ## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
+
+    ## v ggplot2 3.3.5     v purrr   0.3.4
+    ## v tibble  3.1.4     v dplyr   1.0.7
+    ## v tidyr   1.1.3     v stringr 1.4.0
+    ## v readr   2.0.1     v forcats 0.5.1
+
+    ## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+    ## x dplyr::filter() masks stats::filter()
+    ## x dplyr::lag()    masks stats::lag()
+
+``` r
 library(readxl)
 library(lubridate)
 ```
+
+    ## 
+    ## Attaching package: 'lubridate'
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     date, intersect, setdiff, union
 
 We can toggle on/off warnings in chunks if we don’t want them in our
 final markdown file.
@@ -78,6 +99,11 @@ glimpse(data)
 
 ``` r
 joined <- left_join(metadata, data) #attach data to metadata
+```
+
+    ## Joining, by = c("Bottle", "Timepoint")
+
+``` r
 #joins right dataset to the left one by using variables that are the same across the two dataframes
 ```
 
