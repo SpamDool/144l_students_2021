@@ -1,6 +1,6 @@
 ---
 title: "2021_dapi_abundance submission"
-author: "Your Name"
+author: "Sam Daley"
 date: "10/27/2021"
 output: github_document
 ---
@@ -18,13 +18,13 @@ library(lubridate)
 # Import Data 
 
 ```{r}
-excel_sheets("~/Documents/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx")
+excel_sheets("C:/Users/samro/Desktop/GitHub/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx")
 
-metadata <- read_excel("~/Documents/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx", sheet = "Metadata")
+metadata <- read_excel("C:/Users/samro/Desktop/GitHub/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx", sheet = "Metadata")
 
 glimpse(metadata)
 
-dapi_data <- read_excel("~/Documents/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx", sheet = "DAPI_Data")
+dapi_data <- read_excel("C:/Users/samro/Desktop/GitHub/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx", sheet = "DAPI_Data")
 glimpse(dapi_data)
 
 dapi_metadata <- metadata %>%
@@ -44,7 +44,19 @@ Complete: prepare data, plot growth curves for Cells_L and Cell Biovolume data A
 Convert the Date and Time column values from characters to dates, add columns with time elapsed for each treatment, and convert to cells/L because it will help us match up with the TOC data later. Also drop NA values.
 
 ```{r}
-#insert your code here
+cells <- joined %>%
+  mutate(Datetime = ymd_hm(Datetime), #splits apart Datetime as specified
+  cells_L = as.numeric(Cells_mL)*1000) %>%
+  group_by(Treatment) %>%
+#group our data set so that we can calculate the time elapsed properly
+  mutate(interv = interval(first(Datetime), Datetime),
+         s = as.numeric(interv),
+         hours = s/3600,
+         days = hours/24) %>%
+  ungroup() %>%
+  select(Experiment:DNA_Sample, Mean_Biovolume_um3_cell,cells_L, hours, days) %>%
+  drop_na(cells_L)
+glimpse(cells)
 ```
 
 
@@ -55,7 +67,27 @@ Plot growth curves for each treatment using DAPI cell abundance and biovolume da
 ## Cell Abundance Growth Curve
 
 ```{r}
-#insert your code here
+#assign hex colors to our different treatments
+custom.colors <- c("Control" = "#377EB8", "Kelp Exudate" = "#4DAF4A", "Kelp Exudate_Nitrate_Phosphate" = "#E41A1C", "Glucose_Nitrate_Phosphate" = "#FF7F00")
+
+#assign levels to control what order things appear in the legend
+levels <- c("Control", "Kelp Exudate", "Kelp Exudate_Nitrate_Phosphate", "Glucose_Nitrate_Phosphate")
+
+#now let's use a handy package, ggplot, to visualize our data.
+
+cells %>%
+  mutate(dna = ifelse(DNA_Sample == T, "*", NA)) %>%
+  ggplot(aes(x=days, y=cells_L, group = interaction(Treatment))) +
+  geom_line(aes(color = factor(Treatment, levels = levels)), size = 1) +
+  geom_point(aes(fill = factor(Treatment, levels = levels)), size = 3, color = "black", shape = 21) +
+  geom_text(aes(label = dna), size = 12, color = "#E41A1C") +
+  labs(x = "Days", y = expression(paste("Cells, L^-1")), fill = "") +
+  guides(color = "none") +
+  scale_color_manual(values = custom.colors) +
+  scale_fill_manual(values = custom.colors) +
+  #facet_grid(rows = "Treatment")
+  theme_bw()
+glimpse(cells)
 ```
 
 Q: What differences between the treatments do you observe? Does this make sense in the context of the oxygen drawdown data (pictured below)?
@@ -69,7 +101,27 @@ Oxygen Drawdown:
 ## Cell Biovolume Growth Curve
 
 ```{r}
-#insert your code here
+#assign hex colors to our different treatments
+custom.colors <- c("Control" = "#377EB8", "Kelp Exudate" = "#4DAF4A", "Kelp Exudate_Nitrate_Phosphate" = "#E41A1C", "Glucose_Nitrate_Phosphate" = "#FF7F00")
+
+#assign levels to control what order things appear in the legend
+levels <- c("Control", "Kelp Exudate", "Kelp Exudate_Nitrate_Phosphate", "Glucose_Nitrate_Phosphate")
+
+#now let's use a handy package, ggplot, to visualize our data.
+
+cells %>%
+  mutate(dna = ifelse(DNA_Sample == T, "*", NA)) %>%
+  ggplot(aes(x=days, y=Mean_Biovolume_um3_cell, group = interaction(Treatment))) +
+  geom_line(aes(color = factor(Treatment, levels = levels)), size = 1) +
+  geom_point(aes(fill = factor(Treatment, levels = levels)), size = 3, color = "black", shape = 21) +
+  geom_text(aes(label = dna), size = 12, color = "#E41A1C") +
+  labs(x = "Days", y = expression(paste("Cells, L^-1")), fill = "") +
+  guides(color = "none") +
+  scale_color_manual(values = custom.colors) +
+  scale_fill_manual(values = custom.colors) +
+  #facet_grid(rows = "Treatment")
+  theme_bw()
+glimpse(cells)
 ```
 
 Q: What differences do you notice between the cell abundance data and the cell biovolume data? 
