@@ -1,6 +1,6 @@
 ---
 title: "2021 Bacterial Abundance Data (DAPI) & TOC Data Analysis"
-author: "Sam Daley"
+author: "Your Name"
 date: "11/03/2021"
 output: github_document
 ---
