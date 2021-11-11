@@ -1,6 +1,6 @@
 ---
 title: "Phyloseq"
-author: "Your Name"
+author: "Sam Daley"
 date: "11/10/2021"
 output: github_document
 ---
@@ -27,16 +27,16 @@ library(lubridate)
 # Import Data 
 
 ```{r message = F}
-count.tab <- read_rds("~/Documents/144l_students_2021/Input_Data/week7/seqtab-nochimtaxa.rds") #table of counts for each sequence in each sample
-tax.tab <- read_rds("~/Documents/144l_students_2021/Input_Data/week7/taxa.rds") #table that matches ASV to sequence
+count.tab <- read_rds("C:/Users/samro/Desktop/GitHub/Test/144l_students_2021/Input_Data/week7/seqtab-nochimtaxa.rds") #table of counts for each sequence in each sample
+tax.tab <- read_rds("C:/Users/samro/Desktop/GitHub/Test/144l_students_2021/Input_Data/week7/taxa.rds") #table that matches ASV to sequence
 
 #you will need to download the ACIDD_Exp_Processed_DOC_BGE.rds and the ACIDD_Exp_BactAbund.xlsx files from Justine's Github repository (located in Input_Data/week7/) and put them into your own local Input Data folder
-metadata_OG <- read_excel("~/Documents/144l_students_2021/Input_Data/week7/ACIDD_Exp_BactAbund.xlsx", sheet = "Metadata")
+metadata_OG <- read_excel("C:/Users/samro/Desktop/GitHub/Test/144l_students_2021/Input_Data/week7/ACIDD_Exp_BactAbund.xlsx", sheet = "Metadata")
 glimpse(metadata_OG)
 metadata <- metadata_OG %>%
   mutate(Datetime = ymd_hm(Datetime))
 glimpse(metadata)
-metadata_doc <- read_rds("~/Documents/144l_students_2021/Input_Data/week7/ACIDD_Exp_Processed_DOC_BGE.rds")
+metadata_doc <- read_rds("C:/Users/samro/Desktop/GitHub/Test/144l_students_2021/Input_Data/week7/ACIDD_Exp_Processed_DOC_BGE.rds")
 glimpse(metadata_doc)
 join <- left_join(metadata_doc, metadata)
 sample.tab <- join %>%
@@ -67,7 +67,7 @@ sub_ps <- ps %>%
 
 Q1: What did we do in the code chunk above? (What is the difference between phyloseq object ps and phyloseq object sub_ps?) Why did we do this? 
 
-A1: 
+A1: In the chunk above, we created a new phyloseq object (sub_ps) that filters out sequences that correspond with chloroplasts and mitochondria in our original phyloseq object ps. We did this because we are only interested in the amplified bacterial sequences, not mitochondria and chloroplasts. These organisms are not part of our study.
 
 # Sample Summary
 
@@ -86,7 +86,7 @@ ggplot(sample_sum_df, aes(x = sum)) +
 ```
 Q2: Describe what "sequencing depth" means in your own words. 
 
-A2: 
+A2: "Sequencing depth" means how many read counts were made in each sample sample during a read. It is how many total sequences were counted in each sample.
 
 ```{r}
 # mean, max and min of sample read counts
@@ -130,9 +130,9 @@ mean(sample_sums(sub_ps)) #7686
 mean(sample_sums(ps_min)) #6048 this is also the same as min(sample_sums(sub)ps) 
 ```
 
-Q3: Do you think that the subsampling we did here will have a large effect on our beta diveristy analyses? why or why not? 
+Q3: Do you think that the subsampling we did here will have a large effect on our beta diversity analyses? why or why not? 
 
-A3: 
+A3: The subsampling we did here will not have a large effect on our beta diversity because the mean of our read depth is similar before and after subsampling (7695 vs 6047).
 
 ## NMDS
 
@@ -188,11 +188,11 @@ NMDS plots attempt to show ordinal distances between samples as accurately as po
 
 Q4: Which datasets were used to make the two NMDS plots above? Based on how these two plots look, which dataset are we going to move forward with and why? 
 
-A4: 
+A4: The two NMDS plots were made using subsampled (standardized) and non-subsampled datasets of NMDS ordinations of our full community samples. As both showed very similar patterns, we will use the standardized dataset because it does not seem to change diversity patterns.
 
 Q5: Describe in a couple of sentences what patterns you see in the beta diversity of the communities in the control and Ash Leachate treatments. 
 
-A5: 
+A5: In both the San Diego and Santa Barbara data, the graphs showed more similarity between control and ash leachate at Day 0 than at the final timepoint, where the both the control and ash leachate community were relatively similar to other data points within the same community but more dissimilar to data of the other community, especially within the San Diego Data (the four data points at the final time point were more similar in the Santa Barbara data but seemed to show the same trend to a lesser degree). Also, the ash leachate community was more dissimilar to the initial timepoint community than the control community was, which was again more evident in the San Diego data.
 
 # Alpha Diversity
 
@@ -277,7 +277,7 @@ From this plot we can see between the treatments that the richness of the contro
 
 Q6: Summarize the major takeaways from the alpha diversity plots you generated. 
 
-A6: 
+A6: At timepoint 0, the control samples showed a significantly greater richness than the ash leachate, though the shannon index (total diversity) was not significantly different between control and ash leachate. At timepoint 6, both richness and diversity were significanly greater in the control than the ash leachate. Overall, this indicates that the ash leachate samples were less rich and diverse than the control (fewer ASVs and fewer dominant ASVs) by timepoint 6.
 
 # Who??
 
@@ -377,17 +377,17 @@ relaheat
 
 Q7: Who uniquely increased in relative abundance in the ash leachate treatment that did not in the control? what about decrease?
 
-A7: 
+A7: Alteromonadales uniquely increased in relative abundance in ash leachate but not the control. Oceanospirillales and Campylobacterales showed the same trend but to a lesser degree. SAR 11 decreased in both, but far more so in the ash leachate than the control.
 
 Everything shown here is just a snapshot of what you can look at with your community composition data. There are many other resources you can use to get ideas of how to look at different aspects of your data, including the [phyloseq tutorial](https://joey711.github.io/phyloseq/) and [happy belly bioinformatics](https://astrobiomike.github.io). It's up to you and your questions!!
 
 # Save and knit
 
 ```{r}
-saveRDS(sweet.tab, "~/Documents/144l_students_2021/Output_Data/week7/Custom_ASV_Table.rds")
-saveRDS(sub_ps, "~/Documents/144l_students_2021/Output_Data/week7/phyloseq_obj.rds")
-saveRDS(ps_min, "~/Documents/144l_students_2021/Output_Data/week7/subsampled_phyloseq_obj.rds")
-saveRDS(alphadiv, "~/Documents/144l_students_2021/Output_Data/week7/alphadiv.rds")
+saveRDS(sweet.tab, "C:/Users/samro/Desktop/GitHub/Test/144l_students_2021/Output_Data/week7/Custom_ASV_Table.rds")
+saveRDS(sub_ps, "C:/Users/samro/Desktop/GitHub/Test/144l_students_2021/Output_Data/week7/phyloseq_obj.rds")
+saveRDS(ps_min, "C:/Users/samro/Desktop/GitHub/Test/144l_students_2021/Output_Data/week7/subsampled_phyloseq_obj.rds")
+saveRDS(alphadiv, "C:/Users/samro/Desktop/GitHub/Test/144l_students_2021/Output_Data/week7/alphadiv.rds")
 
 ```
 
